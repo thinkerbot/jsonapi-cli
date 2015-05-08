@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+begin
+  require 'optparse'
+  require 'csv'
+  require 'json'
+
+  options = {
+    :all => false,
+    :headers => false,
+  }
+  OptionParser.new do |opts|
+    opts.banner = %{
+usage: jsonapi-flatten [options] FILE...
+
+  Flatten JSONAPI examples into csv.
+
+options:
+
+}.lstrip
+
+    opts.on("-a", "--all", "flatten all (not just 'data')") do
+      options[:all] = true
+    end
+
+    opts.on("-H", "--[no-]headers", "print headers (#{options[:headers]}") do |value|
+      options[:headers] = value
+    end
+
+    opts.on("-h", "--help", "print this help") do
+      puts opts
+      exit
+    end
+  end.parse!
+
+  all = options[:all]
+  print_headers = options[:headers]
+
+  module Utils
+    module_function
+
+    def flatten(source, target = {}, path = [])
+      case source
+      when Hash
+        source.each_pair do |key, value|
+          path.push key
+          flatten(value, target, path)
+          path.pop
+        end
+      when Array
+        source.each_with_index do |value, index|
+          suffix = "_#{index}"
+          path[-1] = path[-1] + suffix
+          flatten(value, target, path)
+          path[-1].chomp! suffix
+        end
+      else
+        target[path.join('.')] = source
+      end
+      target
+    end
+
+    def sorted_values(row, headers)
+      headers.map do |key|
+        row[key]
+      end
+    end
+  end
+
+  headers = nil
+  output  = CSV(STDOUT)
+  while line = ARGF.gets
+    obj = JSON.parse(line)
+    obj = obj["data"] unless all
+    row = Utils.flatten(obj)
+
+    if headers.nil?
+      headers = row.keys
+      output << headers if print_headers
+    end
+    
+    output << Utils.sorted_values(row, headers)
+  end
+  output.close
+
+rescue Interrupt
+  exit 130
+rescue Errno::EPIPE
+  exit 0
+end
