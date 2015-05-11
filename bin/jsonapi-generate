@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'bundler'
+Bundler.setup
+
+begin
+  require 'optparse'
+  require 'jsonapi_cli'
+  require 'jsonapi_cli/resource'
+  require 'json'
+
+  options = {}
+  OptionParser.new do |opts|
+    opts.banner = %{
+usage: jsonapi-generate [options] RESOURCE_FILES...
+
+  Generate payloads from resource descriptions.
+
+options:
+
+}.lstrip
+
+    opts.on("-h", "--help", "print this help") do
+      puts opts
+      puts
+      puts JsonapiCli.version
+      exit
+    end
+
+  end.parse!
+
+  resource_files = ARGV.dup; ARGV.clear
+  resource_files.each {|file| require file }
+
+  seed = 0
+  Random.srand(seed)
+
+  JsonapiCli::Resource.each do |resource_class|
+    resource = resource_class.new
+    puts resource.attributes.to_json
+  end
+
+rescue Interrupt
+  exit 130
+rescue Errno::EPIPE
+  exit 0
+end

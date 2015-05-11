@@ -1,0 +1,39 @@
+#!/bin/bash
+. test/integration/helper
+
+setup () {
+  true
+}
+
+assert_json () {
+ruby -rjson -e '
+  expected=JSON.load(ARGV[0])
+  actual=JSON.load(STDIN.read)
+  if expected == actual
+    exit 0
+  else
+    STDERR.puts "#{expected.to_json} not equal to\n#{actual.to_json}"
+    exit 1
+  end
+' "$@"
+}
+
+example () {
+  printf "$PWD/examples/%s.rb" "$@"
+}
+
+test_jsonapi_generate_prints_payload_for_resource () {
+jsonapi-generate "$(example persons)" | assert_json '
+{"first_name":"Sylvan","last_name":"Bradtke","gender":"female"}
+'
+}
+
+#
+# -h
+#
+
+test_jsonapi_generate_h_prints_help () {
+jsonapi-generate -h | grep -q "usage: jsonapi-generate"
+}
+
+. ts
