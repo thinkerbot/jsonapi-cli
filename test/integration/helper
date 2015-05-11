@@ -1,0 +1,2 @@
+# Setup test paths
+. bin/jsonapi.env
