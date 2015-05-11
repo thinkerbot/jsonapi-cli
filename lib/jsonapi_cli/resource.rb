@@ -7,11 +7,11 @@ module JsonapiCli
       REGISTRY = []
 
       attr_reader :url
-      attr_reader :name
+      attr_reader :type
 
-      def register(url, name = nil)
+      def register(url, type = nil)
         @url = url
-        @name = name || self.to_s.split('::').last.downcase
+        @type = type || self.to_s.split('::').last.downcase
         REGISTRY << self
       end
 
@@ -30,8 +30,23 @@ module JsonapiCli
       end
     end
 
+    def type
+      self.class.type
+    end
+
     def attributes
       @attributes ||= _generate_attributes
+    end
+
+    def data
+      @data ||= {
+        "type" => type,
+        "attributes" => attributes,
+      }
+    end
+
+    def payload
+      @payload ||= {"data" => data}
     end
 
     def _generate_attributes

@@ -24,6 +24,23 @@ example () {
 
 test_jsonapi_generate_prints_payload_for_resource () {
 jsonapi-generate "$(example persons)" | assert_json '
+{ "data": {
+    "type": "persons",
+    "attributes": {
+      "first_name":"Sylvan",
+      "last_name":"Bradtke",
+      "gender":"female"
+    }
+  }
+}'
+}
+
+#
+# --attributes-only
+#
+
+test_jsonapi_generate_attributes_only_prints_attributes_for_resource () {
+jsonapi-generate --attributes-only "$(example persons)" | assert_json '
 {"first_name":"Sylvan","last_name":"Bradtke","gender":"female"}
 '
 }

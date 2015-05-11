@@ -9,7 +9,9 @@ begin
   require 'jsonapi_cli/resource'
   require 'json'
 
-  options = {}
+  options = {
+    :mode => :payloads,
+  }
   OptionParser.new do |opts|
     opts.banner = %{
 usage: jsonapi-generate [options] RESOURCE_FILES...
@@ -19,6 +21,10 @@ usage: jsonapi-generate [options] RESOURCE_FILES...
 options:
 
 }.lstrip
+
+    opts.on("--[no-]attributes-only", "generate attributes onlu") do |value|
+      options[:mode] = value ? :attributes : :payloads
+    end
 
     opts.on("-h", "--help", "print this help") do
       puts opts
@@ -35,9 +41,15 @@ options:
   seed = 0
   Random.srand(seed)
 
+  mode = options[:mode]
   JsonapiCli::Resource.each do |resource_class|
     resource = resource_class.new
-    puts resource.attributes.to_json
+    case mode
+    when :attributes
+      puts resource.attributes.to_json
+    when :payloads
+      puts resource.payload.to_json
+    end
   end
 
 rescue Interrupt
