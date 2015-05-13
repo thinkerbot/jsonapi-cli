@@ -1,7 +1,7 @@
 require 'jsonapi_cli/resource'
 
 class Persons < JsonapiCli::Resource
-  register "http://localhost:3000"
+  register "http://localhost:3000/persons"
 
   attribute :first_name, :type => :first_name
   attribute :last_name, :type => :last_name
