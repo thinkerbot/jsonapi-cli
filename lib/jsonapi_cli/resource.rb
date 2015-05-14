@@ -23,10 +23,37 @@ module JsonapiCli
         @attributes ||= {}
       end
 
+      def inherited(subclass)
+        subclass.attributes.merge!(attributes)
+      end
+
       protected
 
-      def attribute(name, options = {})
-        attributes[name] = Attribute.new(options)
+      def attribute(name, options = {}, &block)
+        if block_given?
+          options[:type] ||= :object
+          options[:attributes] = with_attributes({}, &block)
+        end
+
+        attribute_class = \
+        case options[:type]
+        when :object then ObjectAttribute
+        when :list   then ListAttribute
+        else Attribute
+        end
+
+        attributes[name] = attribute_class.new(options)  
+      end
+
+      def with_attributes(new_attributes)
+        current = @attributes
+        begin
+          @attributes = new_attributes
+          yield
+        ensure
+          @attributes = current
+        end
+        new_attributes
       end
     end
 
@@ -50,14 +77,7 @@ module JsonapiCli
     end
 
     def attributes
-      @attributes ||= begin
-        attributes = {}
-        self.class.attributes.each_pair do |name, attribute|
-          generator_method = "generate_#{attribute.type}"
-          attributes[name] = send(generator_method)
-        end
-        attributes   
-      end
+      @attributes ||= generate_object(self.class.attributes)
     end
 
     def data(id = nil)
@@ -88,6 +108,20 @@ module JsonapiCli
 
     def generate_field
       Faker::Lorem.word
+    end
+
+    def generate_object(attributes)
+      object = {}
+      attributes.each_pair do |key, attribute|
+        object[key] = attribute.value_for(self) 
+      end
+      object 
+    end
+
+    def generate_list(attributes, range)
+      rand(range).times.map do
+        generate_object(attributes)
+      end
     end
   end
 end

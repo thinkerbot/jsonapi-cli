@@ -24,12 +24,24 @@ example () {
 
 test_jsonapi_generate_prints_payload_for_resource () {
 jsonapi-generate "$(example persons)" | assert_json '
-{ "data": {
+{
+  "data": {
     "type": "persons",
     "attributes": {
-      "first_name":"Sylvan",
-      "last_name":"Bradtke",
-      "gender":"female"
+      "first_name": "Sylvan",
+      "last_name": "Bradtke",
+      "gender": "female",
+      "phones": [
+        {
+          "label": "home",
+          "phone_number": "1-576-881-6778 x15989"
+        }
+      ],
+      "address": {
+        "street": "40350 Alexanne Vista",
+        "city": "South Dimitri",
+        "state": "Maryland"
+      }
     }
   }
 }'
@@ -41,8 +53,22 @@ jsonapi-generate "$(example persons)" | assert_json '
 
 test_jsonapi_generate_attributes_only_prints_attributes_for_resource () {
 jsonapi-generate --attributes-only "$(example persons)" | assert_json '
-{"first_name":"Sylvan","last_name":"Bradtke","gender":"female"}
-'
+{
+  "first_name": "Sylvan",
+  "last_name": "Bradtke",
+  "gender": "female",
+  "phones": [
+    {
+      "label": "home",
+      "phone_number": "1-576-881-6778 x15989"
+    }
+  ],
+  "address": {
+    "street": "40350 Alexanne Vista",
+    "city": "South Dimitri",
+    "state": "Maryland"
+  }
+}'
 }
 
 #
