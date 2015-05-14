@@ -88,24 +88,6 @@ module JsonapiCli
       data
     end
 
-    def crud(action, id = nil)
-      if id
-        case action
-        when :create then ["PUT",    url(id), headers(action), payload(id)]
-        when :read   then ["GET",    url(id), headers(action), nil]
-        when :update then ["PATCH",  url(id), headers(action), payload(id)]
-        when :delete then ["DELETE", url(id), headers(action), nil]
-        else raise "invalid CRUD action for item: #{action.inspect}"
-        end
-      else
-        case action
-        when :create then ["POST", url, headers(action), payload]
-        when :read   then ["GET",  url, headers(action), nil]
-        else raise "invalid CRUD action for collection: #{action.inspect}"
-        end
-      end
-    end
-
     def generate_field
       Faker::Lorem.word
     end

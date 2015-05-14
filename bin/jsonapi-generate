@@ -28,10 +28,6 @@ options:
       options[:mode] = value ? :attributes : :payloads
     end
 
-    opts.on("-c", "--curl", "generate curl requests") do
-      options[:mode] = :curl
-    end
-
     opts.on("-h", "--help", "print this help") do
       puts opts
       puts
@@ -53,18 +49,6 @@ options:
   end
 
   mode = options[:mode]
-
-  actions = [
-    [:read],
-    [:create, :id],
-    [:read],
-    [:read,   :id],
-    [:update, :id],
-    [:delete, :id],
-    [:read,   :id],
-    [:read],
-  ]
-
   JsonapiCli::Resource.each do |resource_class|
     resource = resource_class.new
     case mode
@@ -72,18 +56,6 @@ options:
       puts resource.attributes.to_json
     when :payloads
       puts resource.payload.to_json
-    when :curl
-      dir = "tmp/#{resource.type}"
-
-      actions.each do |action, id|
-        action, url, headers, payload = resource.crud(action, id)
-        command = ["curl", "-X", action]
-        headers.each_pair {|key, value| command << ["-H", "#{key}=#{value}"] }
-        command << ["-d", payload] if payload
-        command << url
-
-        puts command.flatten.shelljoin
-      end
     end
   end
 
