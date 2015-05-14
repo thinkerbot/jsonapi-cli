@@ -70,7 +70,7 @@ options:
   output  = CSV(STDOUT)
   while line = ARGF.gets
     obj = JSON.parse(line)
-    obj = obj["data"] unless all
+    obj = obj["data"]["attributes"] unless all
     row = Utils.flatten(obj)
 
     if headers.nil?
