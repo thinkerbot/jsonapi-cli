@@ -14,6 +14,7 @@ begin
     :mode => :payloads,
     :seed => ENV['JSONAPI_SEED'],
     :num  => 1,
+    :resource_options => {},
   }
   OptionParser.new do |opts|
     opts.banner = %{
@@ -44,6 +45,10 @@ options:
       options[:seed] = value
     end
 
+    opts.on("-x", "--[no-]expand-lists", "expand lists to maximum size") do |value|
+      options[:resource_options][:expand_lists] = value
+    end
+
   end.parse!
 
   resource_files = ARGV.dup; ARGV.clear
@@ -55,10 +60,11 @@ options:
 
   mode = options[:mode]
   num  = options[:num].to_i
+  resource_options = options[:resource_options]
 
   JsonapiCli::Resource.each do |resource_class|
     num.to_i.times do
-      resource = resource_class.new
+      resource = resource_class.new(resource_options)
       case mode
       when :attributes
         puts resource.attributes.to_json

@@ -57,6 +57,16 @@ module JsonapiCli
       end
     end
 
+    attr_reader :options
+
+    def initialize(options = {})
+      @options = options
+    end
+
+    def expand_lists?
+      options[:expand_lists] ? true : false
+    end
+
     def url(id = nil)
       id ? File.join(self.class.url, id.to_s) : self.class.url
     end
@@ -101,7 +111,8 @@ module JsonapiCli
     end
 
     def generate_list(attributes, range)
-      rand(range).times.map do
+      num = expand_lists? ? range.max + 1 : rand(range)
+      num.times.map do
         generate_object(attributes)
       end
     end
