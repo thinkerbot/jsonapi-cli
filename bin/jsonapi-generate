@@ -13,6 +13,7 @@ begin
   options = {
     :mode => :payloads,
     :seed => ENV['JSONAPI_SEED'],
+    :num  => 1,
   }
   OptionParser.new do |opts|
     opts.banner = %{
@@ -35,6 +36,10 @@ options:
       exit
     end
 
+    opts.on("-n", "--num NUM", "number of each resource to generate") do |value|
+      options[:num] = value
+    end
+
     opts.on("-s", "--seed SEED", "set seed value") do |value|
       options[:seed] = value
     end
@@ -49,13 +54,17 @@ options:
   end
 
   mode = options[:mode]
+  num  = options[:num].to_i
+
   JsonapiCli::Resource.each do |resource_class|
-    resource = resource_class.new
-    case mode
-    when :attributes
-      puts resource.attributes.to_json
-    when :payloads
-      puts resource.payload.to_json
+    num.to_i.times do
+      resource = resource_class.new
+      case mode
+      when :attributes
+        puts resource.attributes.to_json
+      when :payloads
+        puts resource.payload.to_json
+      end
     end
   end
 

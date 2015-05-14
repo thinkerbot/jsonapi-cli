@@ -79,4 +79,16 @@ test_jsonapi_generate_h_prints_help () {
 jsonapi-generate -h | grep -q "usage: jsonapi-generate"
 }
 
+#
+# -n
+#
+
+test_jsonapi_generate_n_specifies_how_many_payloads_to_emit () {
+jsonapi-generate -n 3 "$(example persons)" | jq -r .data.attributes.first_name | assert_output "\
+Sylvan
+Wilson
+Gilbert
+"
+}
+
 . ts
