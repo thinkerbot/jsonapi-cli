@@ -1,2 +1,4 @@
 # Setup test paths
 . bin/jsonapi.env
+
+export JSONAPI_SEED=0
