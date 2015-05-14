@@ -38,4 +38,5 @@ fi
 #############################################################################
 
 export JSONAPI_DOMAIN=${JSONAPI_DOMAIN:-localhost:3000}
+export BUNDLE_GEMFILE="$JSONAPI_HOME/Gemfile"
 gls_exec "$@"
