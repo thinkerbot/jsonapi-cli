@@ -27,12 +27,26 @@ module JsonapiCli
         subclass.attributes.merge!(attributes)
       end
 
+      def autotype_on
+        @autotype = true
+      end
+
+      def autotype_off
+        @autotype = false
+      end
+
+      def autotype?
+        @autotype
+      end
+
       protected
 
       def attribute(name, options = {}, &block)
         if block_given?
           options[:type] ||= :object
           options[:attributes] = with_attributes({}, &block)
+        elsif autotype?
+          options[:type] ||= name
         end
 
         attribute_class = \

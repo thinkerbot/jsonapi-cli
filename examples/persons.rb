@@ -2,20 +2,21 @@ require 'jsonapi_cli/resource'
 
 class Persons < JsonapiCli::Resource
   register "http://localhost:3000/persons"
+  autotype_on
 
-  attribute :first_name, :type => :first_name
-  attribute :last_name, :type => :last_name
-  attribute :gender, :type => :gender
+  attribute :first_name
+  attribute :last_name
+  attribute :gender
 
   attribute :phones, :type => :list do
     attribute :label, :type => :phone_type
-    attribute :phone_number, :type => :phone_number
+    attribute :phone_number
   end
 
   attribute :address do
-    attribute :street, :type => :street
-    attribute :city, :type => :city
-    attribute :state, :type => :state
+    attribute :street
+    attribute :city
+    attribute :state
   end
 
   def generate_first_name
