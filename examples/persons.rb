@@ -14,18 +14,14 @@ class Persons < JsonapiCli::Resource
   end
 
   attribute :address do
-    attribute :street
+    attribute :street, :type => :street_address
     attribute :city
     attribute :state
   end
 
-  def generate_first_name
-    Faker::Name.first_name
-  end
-
-  def generate_last_name
-    Faker::Name.last_name
-  end
+  generate_from Faker::Name, :first_name, :last_name
+  generate_from Faker::PhoneNumber, :phone_number
+  generate_from Faker::Address, :street_address, :city, :state
 
   GENDERS = %w{male female}
   def generate_gender
@@ -35,21 +31,5 @@ class Persons < JsonapiCli::Resource
   PHONE_TYPES = %w{cell home work}
   def generate_phone_type
     PHONE_TYPES.sample
-  end
-
-  def generate_phone_number
-    Faker::PhoneNumber.phone_number
-  end
-
-  def generate_street
-    Faker::Address.street_address
-  end
-
-  def generate_city
-    Faker::Address.city
-  end
-
-  def generate_state
-    Faker::Address.state
   end
 end

@@ -49,6 +49,14 @@ module JsonapiCli
         new(list_mode)
       end
 
+      def generate_from(generator, *method_names)
+        method_names.each do |method_name|
+          define_method("generate_#{method_name}") do
+            generator.send(method_name)
+          end
+        end
+      end
+
       protected
 
       def attribute(name, options = {}, &block)
