@@ -37,6 +37,10 @@ options:
       exit
     end
 
+    opts.on("-l", "--list-mode MODE", "sets list mode ") do |value|
+      options[:resource_options][:list_mode] = value.to_sym
+    end
+
     opts.on("-n", "--num NUM", "number of each resource to generate") do |value|
       options[:num] = value
     end
@@ -44,11 +48,6 @@ options:
     opts.on("-s", "--seed SEED", "set seed value") do |value|
       options[:seed] = value
     end
-
-    opts.on("-x", "--[no-]expand-lists", "expand lists to maximum size") do |value|
-      options[:resource_options][:expand_lists] = value
-    end
-
   end.parse!
 
   resource_files = ARGV.dup; ARGV.clear
@@ -64,7 +63,7 @@ options:
 
   JsonapiCli::Resource.each do |resource_class|
     num.to_i.times do
-      resource = resource_class.new(resource_options)
+      resource = resource_class.create(resource_options)
       case mode
       when :attributes
         puts resource.attributes.to_json

@@ -39,6 +39,16 @@ module JsonapiCli
         @autotype
       end
 
+      def create(options = {})
+        list_mode = options.fetch(:list_mode, LIST_MODES.first)
+
+        unless LIST_MODES.include?(list_mode)
+          raise "invalid list mode: #{list_mode.inspect}"
+        end
+
+        new(list_mode)
+      end
+
       protected
 
       def attribute(name, options = {}, &block)
@@ -71,14 +81,12 @@ module JsonapiCli
       end
     end
 
-    attr_reader :options
+    LIST_MODES = [:rand, :min, :max]
 
-    def initialize(options = {})
-      @options = options
-    end
+    attr_reader :list_mode
 
-    def expand_lists?
-      options[:expand_lists] ? true : false
+    def initialize(list_mode)
+      @list_mode = list_mode
     end
 
     def url(id = nil)
@@ -125,7 +133,14 @@ module JsonapiCli
     end
 
     def generate_list(attributes, range)
-      num = expand_lists? ? range.max + 1 : rand(range)
+      num = \
+      case list_mode
+      when :rand then rand(range)
+      when :min  then range.min
+      when :max  then range.max + 1
+      else 0
+      end
+
       num.times.map do
         generate_object(attributes)
       end

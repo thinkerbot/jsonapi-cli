@@ -80,6 +80,23 @@ jsonapi-generate -h | grep -q "usage: jsonapi-generate"
 }
 
 #
+# -l
+#
+
+test_jsonapi_generate_l_maximizes_lists () {
+jsonapi-generate -l max "$(example persons)" | jq -r .data.attributes.phones[].phone_number | assert_output "\
+893.524.7688
+1-878-159-8943
+(123) 813-3370
+"
+}
+
+test_jsonapi_generate_l_minimizes_lists () {
+jsonapi-generate -l min "$(example persons)" | jq -r .data.attributes.phones[].phone_number | assert_output "\
+893.524.7688
+"
+}
+#
 # -n
 #
 
@@ -88,18 +105,6 @@ jsonapi-generate -n 3 "$(example persons)" | jq -r .data.attributes.first_name |
 Sylvan
 Wilson
 Gilbert
-"
-}
-
-#
-# -x
-#
-
-test_jsonapi_generate_x_expands_lists () {
-jsonapi-generate -x "$(example persons)" | jq -r .data.attributes.phones[].phone_number | assert_output "\
-893.524.7688
-1-878-159-8943
-(123) 813-3370
 "
 }
 
