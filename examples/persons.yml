@@ -1,0 +1,4 @@
+en:
+  persons:
+    gender: [male, female]
+    phone_type: [cell, home, work]

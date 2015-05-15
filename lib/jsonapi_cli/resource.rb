@@ -153,5 +153,17 @@ module JsonapiCli
         generate_object(attributes)
       end
     end
+
+    def method_missing(m, *args, &block)
+      super unless m =~ /^generate_(.*)/
+      type = $1
+      key  = self.class.to_s.split("::").map(&:downcase)
+      key << type
+      if translation = Faker::Base.translate(key.join('.'))
+        translation.respond_to?(:sample) ? translation.sample : translation
+      else
+        super
+      end
+    end
   end
 end
