@@ -15,6 +15,10 @@ module JsonapiCli
         REGISTRY << self
       end
 
+      def locale_file(file)
+        I18n.load_path << file
+      end
+
       def each(&block)
         REGISTRY.each(&block)
       end

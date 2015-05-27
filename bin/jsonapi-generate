@@ -53,13 +53,6 @@ options:
   resource_files = ARGV.dup; ARGV.clear
 
   resource_files.each do |file|
-    locale_file = File.expand_path(file).chomp(".rb") + ".yml"
-    if File.exists?(locale_file)
-      I18n.load_path << locale_file
-    end
-  end
-
-  resource_files.each do |file|
     require File.expand_path(file)
   end
 
