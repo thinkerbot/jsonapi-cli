@@ -22,6 +22,4 @@ class Persons < JsonapiCli::Resource
   generate_from Faker::Name, :first_name, :last_name
   generate_from Faker::PhoneNumber, :phone_number
   generate_from Faker::Address, :street_address, :city, :state
-
-  locale_file __FILE__.chomp(".rb") + ".yml"
 end

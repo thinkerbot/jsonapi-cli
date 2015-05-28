@@ -3,3 +3,4 @@
 
 export JSONAPI_SEED=0
 export JSONAPI_LOAD_PATH="$PWD/resources"
+export JSONAPI_LOCALE_PATH="$PWD/locales"

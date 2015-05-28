@@ -16,6 +16,7 @@ begin
     :num  => 1,
     :resource_options => {},
     :resource_load_path => (ENV['JSONAPI_LOAD_PATH'] || 'resources').split(':'),
+    :resource_locale_path => (ENV['JSONAPI_LOCALE_PATH'] || 'locales').split(':'),
   }
   OptionParser.new do |opts|
     opts.banner = %{
@@ -52,6 +53,13 @@ options:
   end.parse!
 
   resource_specs = ARGV.dup; ARGV.clear
+
+  resource_locale_path = options[:resource_locale_path]
+  resource_locale_path = resource_locale_path.each do |path|
+    Dir[File.join(path, "*.yml")].each do |file|
+      I18n.load_path << file
+    end
+  end
 
   resource_load_path = options[:resource_load_path]
   resource_patterns = resource_load_path.map do |path|

@@ -64,10 +64,6 @@ module JsonapiCli
         Resource::REGISTRY[@type] = self
       end
 
-      def locale_file(file)
-        I18n.load_path << file
-      end
-
       def fetch(type)
         Resource::REGISTRY[type.to_s]
       end
