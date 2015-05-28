@@ -6,18 +6,14 @@ Bundler.setup
 begin
   require 'optparse'
   require 'jsonapi_cli'
-  require 'jsonapi_cli/resource'
   require 'json'
   require 'shellwords'
 
-  options = {
+  options = JsonapiCli.options(
     :mode => :payloads,
-    :seed => ENV['JSONAPI_SEED'],
     :num  => 1,
     :resource_options => {},
-    :resource_load_path => (ENV['JSONAPI_LOAD_PATH'] || 'resources').split(':'),
-    :resource_locale_path => (ENV['JSONAPI_LOCALE_PATH'] || 'locales').split(':'),
-  }
+  )
   OptionParser.new do |opts|
     opts.banner = %{
 usage: jsonapi-generate [options] RESOURCE[:COUNT] ...
@@ -52,31 +48,14 @@ options:
     end
   end.parse!
 
+  config = JsonapiCli.setup(options)
   resource_specs = ARGV.dup; ARGV.clear
-
-  resource_locale_path = options[:resource_locale_path]
-  resource_locale_path.each do |dir|
-    Dir[File.join(dir, "**", "*.yml")].each do |file|
-      I18n.load_path << File.expand_path(file)
-    end
-  end
-
-  resource_load_path = options[:resource_load_path]
-  resource_load_path.each do |dir|
-    Dir[File.join(dir, "**", "*.rb")].each do |file|
-      require File.expand_path(file)
-    end
-  end
-
-  if seed = options[:seed]
-    Random.srand(seed.to_i)
-  end
 
   mode = options[:mode]
   default_num  = options[:num].to_i
   resource_options = options[:resource_options]
 
-  cache = JsonapiCli::Cache.new
+  cache = config.cache
   resource_specs.each do |spec|
     type, num = spec.split(":", 2)
     num = num ? num.to_i : default_num 
