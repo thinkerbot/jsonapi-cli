@@ -15,10 +15,11 @@ begin
     :seed => ENV['JSONAPI_SEED'],
     :num  => 1,
     :resource_options => {},
+    :resource_load_path => (ENV['JSONAPI_LOAD_PATH'] || 'resources').split(':'),
   }
   OptionParser.new do |opts|
     opts.banner = %{
-usage: jsonapi-generate [options] RESOURCE_FILES...
+usage: jsonapi-generate [options] RESOURCE[:COUNT] ...
 
   Generate payloads from resource descriptions.
 
@@ -50,8 +51,14 @@ options:
     end
   end.parse!
 
-  resource_files = ARGV.dup; ARGV.clear
+  resource_specs = ARGV.dup; ARGV.clear
 
+  resource_load_path = options[:resource_load_path]
+  resource_patterns = resource_load_path.map do |path|
+    File.join(path, "*.rb")
+  end
+
+  resource_files = Dir[*resource_patterns]
   resource_files.each do |file|
     require File.expand_path(file)
   end
@@ -61,18 +68,27 @@ options:
   end
 
   mode = options[:mode]
-  num  = options[:num].to_i
+  default_num  = options[:num].to_i
   resource_options = options[:resource_options]
 
-  JsonapiCli::Resource.each do |resource_class|
+  cache = JsonapiCli::Cache.new
+  resource_specs.each do |spec|
+    type, num = spec.split(":", 2)
+    num = num ? num.to_i : default_num 
+
+    resource_class = JsonapiCli::Resource.fetch(type)
     num.to_i.times do
-      resource = resource_class.create(resource_options)
-      case mode
-      when :attributes
-        puts resource.attributes.to_json
-      when :payloads
-        puts resource.payload.to_json
-      end
+      resource = resource_class.create(resource_options, cache)
+      resource.save
+    end
+  end
+
+  cache.each do |resource|
+    case mode
+    when :attributes
+      puts resource.attributes.to_json
+    when :payloads
+      puts resource.payload.to_json
     end
   end
 

@@ -6,14 +6,20 @@ setup () {
 }
 
 assert_json () {
-ruby -rjson -e '
-  expected=JSON.load(ARGV[0])
-  actual=JSON.load(STDIN.read)
-  if expected == actual
-    exit 0
-  else
-    STDERR.puts "#{expected.to_json} not equal to\n#{actual.to_json}"
-    exit 1
+ruby -rjson -rstrscan -e '
+  scanner = StringScanner.new(ARGV[0])
+  lineno = 0
+  while actual_line = STDIN.gets
+    expected_line = scanner.scan_until(/^}$/) || scanner.rest
+    expected = JSON.load(expected_line) 
+    actual   = JSON.load(actual_line)
+    if expected == actual
+      exit 0
+    else
+      STDERR.puts "#{expected.to_json} not equal to\n#{actual.to_json} (line: #{lineno})"
+      exit 1
+    end
+    lineno += 1
   end
 ' "$@"
 }
@@ -23,10 +29,11 @@ example () {
 }
 
 test_jsonapi_generate_prints_payload_for_resource () {
-jsonapi-generate "$(example persons)" | assert_json '
+jsonapi-generate persons | assert_json '
 {
   "data": {
     "type": "persons",
+    "id": 0,
     "attributes": {
       "first_name": "Sylvan",
       "last_name": "Bradtke",
@@ -47,12 +54,64 @@ jsonapi-generate "$(example persons)" | assert_json '
 }'
 }
 
+test_jsonapi_generate_prints_payload_for_resource_with_relationship () {
+jsonapi-generate -s 1 groups | assert_json '
+{
+  "data": {
+    "type": "persons",
+    "id": 0,
+    "attributes": {
+      "first_name": "Aric",
+      "last_name": "Smith",
+      "gender": "male",
+      "phones": [
+        {
+          "label": "home",
+          "phone_number": "(101) 769-2452"
+        },
+        {
+          "label": "cell",
+          "phone_number": "1-347-791-7069 x976"
+        }
+      ],
+      "address": {
+        "street": "2018 Sienna Spur",
+        "city": "Cortezview",
+        "state": "New Mexico"
+      }
+    }
+  }
+}
+{
+  "data": {
+    "type": "groups",
+    "id": 0,
+    "attributes": {
+      "name": "Jensen Steuber"
+    },
+    "relationships": {
+      "members": {
+        "data": {
+          "linkage": [
+            {
+              "type": "persons",
+              "id": 0
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+'
+}
+
 #
 # --attributes-only
 #
 
 test_jsonapi_generate_attributes_only_prints_attributes_for_resource () {
-jsonapi-generate --attributes-only "$(example persons)" | assert_json '
+jsonapi-generate --attributes-only persons | assert_json '
 {
   "first_name": "Sylvan",
   "last_name": "Bradtke",
@@ -84,7 +143,7 @@ jsonapi-generate -h | grep -q "usage: jsonapi-generate"
 #
 
 test_jsonapi_generate_l_maximizes_lists () {
-jsonapi-generate -l max "$(example persons)" | jq -r .data.attributes.phones[].phone_number | assert_output "\
+jsonapi-generate -l max persons | jq -r .data.attributes.phones[].phone_number | assert_output "\
 893.524.7688
 1-878-159-8943
 (123) 813-3370
@@ -92,7 +151,7 @@ jsonapi-generate -l max "$(example persons)" | jq -r .data.attributes.phones[].p
 }
 
 test_jsonapi_generate_l_minimizes_lists () {
-jsonapi-generate -l min "$(example persons)" | jq -r .data.attributes.phones[].phone_number | assert_output "\
+jsonapi-generate -l min persons | jq -r .data.attributes.phones[].phone_number | assert_output "\
 893.524.7688
 "
 }
@@ -101,7 +160,7 @@ jsonapi-generate -l min "$(example persons)" | jq -r .data.attributes.phones[].p
 #
 
 test_jsonapi_generate_n_specifies_how_many_payloads_to_emit () {
-jsonapi-generate -n 3 "$(example persons)" | jq -r .data.attributes.first_name | assert_output "\
+jsonapi-generate -n 3 persons | jq -r .data.attributes.first_name | assert_output "\
 Sylvan
 Wilson
 Gilbert

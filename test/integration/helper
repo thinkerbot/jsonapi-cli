@@ -2,3 +2,4 @@
 . bin/jsonapi.env
 
 export JSONAPI_SEED=0
+export JSONAPI_LOAD_PATH="$PWD/resources"

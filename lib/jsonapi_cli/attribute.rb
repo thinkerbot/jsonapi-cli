@@ -56,4 +56,32 @@ module JsonapiCli
       "<#{type} - #{attributes.inspect}>"
     end
   end
+
+  class Relationship < Attribute
+    DEFAULT_RANGE = 0...3
+
+    def range
+      @range ||= options.fetch(:range, DEFAULT_RANGE)
+    end
+
+    def generator_method
+      @generator_method ||= "generate_related".to_sym
+    end
+
+    def generator_args
+      super + [type, range]
+    end
+
+    def value_for(resource)
+      related_resources = super(resource)
+      linkage = related_resources.map do |related_resource|
+        {"type" => related_resource.type, "id" => related_resource.id}
+      end
+
+      {
+        "linkage" => linkage
+      }
+    end
+
+  end
 end
