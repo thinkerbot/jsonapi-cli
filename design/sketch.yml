@@ -1,0 +1,81 @@
+  # state0 = {
+  #   :cache => {}
+  #   :egdes => [
+  #     "GET /objects"     => {[] ,  state0},
+  #     "GET /objects/1"   => {nil,  state0},
+  #     "POST /objects {}" => {obj1, state1},
+  #   ]
+  # }
+
+  # state1 = {
+  #   :cache => {"objects" => {"1" => obj1}}
+  #   :egdes => [
+  #     "GET /objects"     => {[obj1],  state1},
+  #     "GET /objects/1"   => {obj,  state1},
+  #     "POST /objects {}" => {obj2, state2},
+  #     "DELETE /objects/1" => {nil, state0},
+  #   ]
+  # }
+
+  # workflow_0 = [
+  #   [:list],
+  #   [:create, 1],
+  #   [:list],
+  #   [:read,   1],
+  #   [:update, 1],
+  #   [:delete, 1],
+  #   [:read,   1],
+  #   [:list],
+  # ]
+
+  # workflow_1 = [
+  #   [:create, 1],
+  #   [:create, 2],
+  #   [:create, 3],
+  #   [:create, 4],
+  #   [:create, 5],
+  # ]
+
+  # workflow_2 = [
+  #   workflow_1,
+  #   [:list],
+  # ]
+
+  # resources/type/id.version.json
+  # states/id.json
+
+states:
+  a: []
+  b: [type/id.0]
+  c: [type/id.1]
+transitions:
+  - parent: a
+    child:  a
+    request: 'GET /type'
+    response: response/a
+
+  # [:action, request_matcher, response_body (??)]
+  - parent: a
+    child:  a
+    action: [:list, type, state/a]
+  - parent: a
+    child:  b
+    action: [:create, type/id, type/id.0]
+  - parent: b
+    child:  b
+    action: [:list, type, state/a]
+  - parent: b
+    child:  b
+    action: [:read, type/id, type/id.0]
+  - parent: b
+    child:  c
+    action: [:update, type/id, type/id.1]
+  - parent: c
+    child:  a
+    action: [:delete, type/id, nil]
+  - parent: a
+    child:  a
+    action: [:read, type/id, nil]
+  - parent: a
+    child:  a
+    action: [:list, type, state/a]
