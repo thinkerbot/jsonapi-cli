@@ -55,20 +55,17 @@ options:
   resource_specs = ARGV.dup; ARGV.clear
 
   resource_locale_path = options[:resource_locale_path]
-  resource_locale_path = resource_locale_path.each do |path|
-    Dir[File.join(path, "*.yml")].each do |file|
-      I18n.load_path << file
+  resource_locale_path.each do |dir|
+    Dir[File.join(dir, "**", "*.yml")].each do |file|
+      I18n.load_path << File.expand_path(file)
     end
   end
 
   resource_load_path = options[:resource_load_path]
-  resource_patterns = resource_load_path.map do |path|
-    File.join(path, "*.rb")
-  end
-
-  resource_files = Dir[*resource_patterns]
-  resource_files.each do |file|
-    require File.expand_path(file)
+  resource_load_path.each do |dir|
+    Dir[File.join(dir, "**", "*.rb")].each do |file|
+      require File.expand_path(file)
+    end
   end
 
   if seed = options[:seed]
