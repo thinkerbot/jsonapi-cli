@@ -58,7 +58,7 @@ options:
   mode = options[:mode]
 
   if mode == :list
-    puts config.resources.map(&:type).sort.join("\n")
+    puts config.resource_classes.map(&:type).sort.join("\n")
     exit
   end
 
@@ -70,7 +70,7 @@ options:
     type, num = spec.split(":", 2)
     num = num ? num.to_i : default_num 
 
-    resource_class = JsonapiCli::Resource.fetch(type)
+    resource_class = config.resource_class(type)
     num.to_i.times do
       resource = resource_class.create(resource_options, cache)
       resource.save

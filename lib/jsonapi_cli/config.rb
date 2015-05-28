@@ -39,8 +39,12 @@ module JsonapiCli
       @cache          = Cache.new
     end
 
-    def resources
+    def resource_classes
       JsonapiCli::Resource::REGISTRY.values
+    end
+
+    def resource_class(type)
+      JsonapiCli::Resource::REGISTRY[type.to_s]
     end
 
     def resource_files

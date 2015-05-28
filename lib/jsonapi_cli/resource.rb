@@ -16,10 +16,6 @@ module JsonapiCli
         Resource::REGISTRY[@type] = self
       end
 
-      def fetch(type)
-        Resource::REGISTRY[type.to_s]
-      end
-
       def each(&block)
         Resource::REGISTRY.each_value(&block)
       end
