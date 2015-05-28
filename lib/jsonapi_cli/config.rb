@@ -39,6 +39,10 @@ module JsonapiCli
       @cache          = Cache.new
     end
 
+    def resources
+      JsonapiCli::Resource::REGISTRY.values
+    end
+
     def resource_files
       files = []
       resource_dirs.each do |dir|

@@ -35,7 +35,11 @@ options:
       exit
     end
 
-    opts.on("-l", "--list-mode MODE", "sets list mode ") do |value|
+    opts.on("-l", "--list", "list available resources") do
+      options[:mode] = :list
+    end
+
+    opts.on("-L", "--list-mode MODE", "sets list mode ") do |value|
       options[:resource_options][:list_mode] = value.to_sym
     end
 
@@ -52,6 +56,12 @@ options:
   resource_specs = ARGV.dup; ARGV.clear
 
   mode = options[:mode]
+
+  if mode == :list
+    puts config.resources.map(&:type).sort.join("\n")
+    exit
+  end
+
   default_num  = options[:num].to_i
   resource_options = options[:resource_options]
 

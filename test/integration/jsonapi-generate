@@ -139,22 +139,31 @@ jsonapi-generate -h | grep -q "usage: jsonapi-generate"
 }
 
 #
-# -l
+# -L
 #
 
-test_jsonapi_generate_l_maximizes_lists () {
-jsonapi-generate -l max persons | jq -r .data.attributes.phones[].phone_number | assert_output "\
+test_jsonapi_generate_L_maximizes_lists () {
+jsonapi-generate -L max persons | jq -r .data.attributes.phones[].phone_number | assert_output "\
 893.524.7688
 1-878-159-8943
 (123) 813-3370
 "
 }
 
-test_jsonapi_generate_l_minimizes_lists () {
-jsonapi-generate -l min persons | jq -r .data.attributes.phones[].phone_number | assert_output "\
+test_jsonapi_generate_L_minimizes_lists () {
+jsonapi-generate -L min persons | jq -r .data.attributes.phones[].phone_number | assert_output "\
 893.524.7688
 "
 }
+
+#
+# -l
+#
+
+test_jsonapi_generate_l_lists_available_resources () {
+jsonapi-generate -l | grep -q "^persons$"
+}
+
 #
 # -n
 #
