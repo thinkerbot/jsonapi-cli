@@ -1,5 +1,5 @@
 module JsonapiCli
-  class Attribute
+  class Property
     attr_reader :options
 
     def initialize(options)
@@ -11,7 +11,7 @@ module JsonapiCli
     end
 
     def generator_method
-      @generator_method ||= "generate_#{type}".to_sym
+      raise NotImplementedError
     end
 
     def generator_args
@@ -24,6 +24,12 @@ module JsonapiCli
 
     def inspect
       "<#{type}>"
+    end
+  end
+
+  class Attribute < Property
+    def generator_method
+      @generator_method ||= "generate_#{type}".to_sym
     end
   end
 
@@ -57,7 +63,7 @@ module JsonapiCli
     end
   end
 
-  class Relationship < Attribute
+  class Relationship < Property
     DEFAULT_RANGE = 0...3
 
     def range

@@ -20,12 +20,16 @@ module JsonapiCli
         Resource::REGISTRY.each_value(&block)
       end
 
+      def properties
+        @properties ||= {}
+      end
+
       def attributes
-        @attributes ||= {}
+        properties.select {|name, property| property.kind_of?(Attribute) }
       end
 
       def relationships
-        @relationships ||= {}
+        properties.select {|name, property| property.kind_of?(Relationship) }
       end
 
       def inherited(subclass)
@@ -64,10 +68,18 @@ module JsonapiCli
 
       protected
 
+      def assign_property(name, property)
+        name = name.to_s
+        if properties.has_key?(name)
+          raise "property already defined: #{name.inspect}"
+        end
+        properties[name] = property
+      end
+
       def attribute(name, options = {}, &block)
         if block_given?
           options[:type] ||= :object
-          options[:attributes] = with_attributes({}, &block)
+          options[:attributes] = capture_properties({}, &block)
         elsif autotype?
           options[:type] ||= name
         end
@@ -79,18 +91,19 @@ module JsonapiCli
         else Attribute
         end
 
-        attributes[name] = attribute_class.new(options)  
+        property = attribute_class.new(options)
+        assign_property(name, property)
       end
 
-      def with_attributes(new_attributes)
-        current = @attributes
+      def capture_properties(target)
+        current = @properties
         begin
-          @attributes = new_attributes
+          @properties = target
           yield
         ensure
-          @attributes = current
+          @properties = current
         end
-        new_attributes
+        target
       end
 
       def relationship(name, options = {})
@@ -98,7 +111,8 @@ module JsonapiCli
           options[:type] ||= name
         end
 
-        relationships[name] = Relationship.new(options)
+        property = Relationship.new(options)
+        assign_property(name, property)
       end
     end
 
