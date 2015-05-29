@@ -1,4 +1,3 @@
-require 'faker'
 require 'jsonapi_cli/attribute'
 require 'jsonapi_cli/cache'
 
@@ -36,18 +35,6 @@ module JsonapiCli
         subclass.attributes.merge!(attributes)
       end
 
-      def autotype_on
-        @autotype = true
-      end
-
-      def autotype_off
-        @autotype = false
-      end
-
-      def autotype?
-        @autotype
-      end
-
       def create(options = {}, cache = Cache.new)
         list_mode = options.fetch(:list_mode, LIST_MODES.first)
 
@@ -60,7 +47,7 @@ module JsonapiCli
 
       def generate_from(generator, *method_names)
         method_names.each do |method_name|
-          define_method("generate_#{method_name}") do
+          define_method("generate_#{method_name}") do |attribute|
             generator.send(method_name)
           end
         end
@@ -80,19 +67,28 @@ module JsonapiCli
         if block_given?
           options[:type] ||= :object
           options[:attributes] = capture_properties({}, &block)
-        elsif autotype?
-          options[:type] ||= name
         end
 
+        is_array = options[:array]
+
+        type = options[:type]
         attribute_class = \
-        case options[:type]
-        when :object then ObjectAttribute
-        when :list   then ListAttribute
-        else Attribute
+        case type
+        when :object  then ObjectAttribute
+        when :integer then IntegerAttribute
+        when :boolean then BooleanAttribute
+        when :string, nil  then StringAttribute
+        when :null    then NullAttribute
+        when :number  then NumberAttribute
+        else raise "invalid type: #{type.inspect}"
         end
 
-        property = attribute_class.new(options)
-        assign_property(name, property)
+        subtype = options[:subtype]
+        options[:generator_method] = "generate_#{subtype || name}"
+
+        attribute = attribute_class.new(options)
+        attribute = ArrayAttribute.new(:attribute => attribute) if is_array
+        assign_property(name, attribute)
       end
 
       def capture_properties(target)
@@ -107,12 +103,11 @@ module JsonapiCli
       end
 
       def relationship(name, options = {})
-        if autotype?
-          options[:type] ||= name
-        end
+        type = options[:type] ||= name
+        options[:generator_method] = "pick_#{type || name}"
 
-        property = Relationship.new(options)
-        assign_property(name, property)
+        relationship = Relationship.new(options)
+        assign_property(name, relationship)
       end
     end
 
@@ -161,11 +156,11 @@ module JsonapiCli
     end
 
     def attributes
-      @attributes ||= generate_object(self.class.attributes)
+      @attributes ||= ObjectAttribute.generate_object(self, self.class.attributes) 
     end
 
     def relationships
-      @relationships ||= generate_relationships(self.class.relationships)
+      @relationships ||= Relationship.generate_relationships(self, self.class.relationships)
     end
 
     def data
@@ -175,74 +170,6 @@ module JsonapiCli
       data["attributes"] = attributes
       data["relationships"] = relationships unless relationships.empty?
       data
-    end
-
-    def generate_field
-      Faker::Lorem.word
-    end
-
-    def generate_object(attributes)
-      object = {}
-      attributes.each_pair do |key, attribute|
-        object[key] = attribute.value_for(self) 
-      end
-      object 
-    end
-
-    def generate_list(attributes, range)
-      num = \
-      case list_mode
-      when :rand then rand(range)
-      when :min  then range.min
-      when :max  then range.max + 1
-      else 0
-      end
-
-      num.times.map do
-        generate_object(attributes)
-      end
-    end
-
-    def generate_relationships(relationships)
-      rels = {}
-      relationships.each_pair do |key, relationship|
-        rels[key] = {
-          "data" => relationship.value_for(self)
-        }
-      end
-      rels
-    end
-
-    def generate_related(type, range)
-      num = \
-      case list_mode
-      when :rand then rand(range)
-      when :min  then range.min
-      when :max  then range.max + 1
-      else 0
-      end
-
-      resources = cache.resources_by_id(type).values
-      related = resources.sample(num)
-      
-      while related.length < num
-        resource_class = Resource::REGISTRY[type.to_s]
-        related << resource_class.create({}, cache).save
-      end
-
-      related
-    end
-
-    def method_missing(m, *args, &block)
-      super unless m =~ /^generate_(.*)/
-      type = $1
-      key  = self.class.to_s.split("::").map(&:downcase)
-      key << type
-      if translation = Faker::Base.translate(key.join('.'))
-        translation.respond_to?(:sample) ? translation.sample : translation
-      else
-        super
-      end
     end
   end
 end
