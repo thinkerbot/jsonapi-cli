@@ -21,6 +21,10 @@ module JsonapiCli
       sequence(type).next
     end
 
+    def resources_of_type(type)
+      resources_by_id(type).values
+    end
+
     def resources_by_id(type)
       resources[type.to_s] ||= {}
     end

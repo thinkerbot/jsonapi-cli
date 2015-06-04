@@ -1,4 +1,4 @@
-require 'jsonapi_cli/attribute'
+require 'jsonapi_cli/properties'
 require 'jsonapi_cli/cache'
 
 module JsonapiCli
@@ -19,20 +19,12 @@ module JsonapiCli
         Resource::REGISTRY.each_value(&block)
       end
 
-      def properties
-        @properties ||= {}
-      end
-
       def attributes
-        properties.select {|name, property| property.kind_of?(Attribute) }
+        @attributes ||= Properties::ObjectProperty.new
       end
 
       def relationships
-        properties.select {|name, property| property.kind_of?(Relationship) }
-      end
-
-      def inherited(subclass)
-        subclass.attributes.merge!(attributes)
+        @relationships ||= Properties::ObjectProperty.new
       end
 
       def create(options = {}, cache = Cache.new)
@@ -45,69 +37,37 @@ module JsonapiCli
         new(list_mode, cache)
       end
 
-      def generate_from(generator, *method_names)
-        method_names.each do |method_name|
-          define_method("generate_#{method_name}") do |attribute|
-            generator.send(method_name)
-          end
-        end
-      end
-
       protected
 
-      def assign_property(name, property)
-        name = name.to_s
-        if properties.has_key?(name)
-          raise "property already defined: #{name.inspect}"
-        end
-        properties[name] = property
-      end
-
-      def attribute(name, options = {}, &block)
-        if block_given?
-          options[:type] ||= :object
-          options[:attributes] = capture_properties({}, &block)
-        end
-
-        is_array = options[:array]
-
-        type = options[:type]
-        attribute_class = \
-        case type
-        when :object  then ObjectAttribute
-        when :integer then IntegerAttribute
-        when :boolean then BooleanAttribute
-        when :string, nil  then StringAttribute
-        when :null    then NullAttribute
-        when :number  then NumberAttribute
-        else raise "invalid type: #{type.inspect}"
-        end
-
-        subtype = options[:subtype]
-        options[:generator_method] = "generate_#{subtype || name}"
-
-        attribute = attribute_class.new(options)
-        attribute = ArrayAttribute.new(:attribute => attribute) if is_array
-        assign_property(name, attribute)
-      end
-
-      def capture_properties(target)
-        current = @properties
+      def capture_to(target)
+        current = @attributes
         begin
-          @properties = target
+          @attributes = target
           yield
         ensure
-          @properties = current
+          @attributes = current
         end
         target
       end
 
-      def relationship(name, options = {})
-        type = options[:type] ||= name
-        options[:generator_method] = "pick_#{type || name}"
+      def attribute(name, options = {}, &block)
+        options[:generator] ||= "generate_#{name}".to_sym
 
-        relationship = Relationship.new(options)
-        assign_property(name, relationship)
+        if block_given?
+          options[:type] = :object
+          property = Properties.create(options)
+
+          capture_to(property.kind_of?(Properties::ArrayProperty) ? property.properties.first : property, &block)
+        else
+          property = Properties.create(options)
+        end
+
+        attributes.properties[name] = property
+      end
+
+      def relationship(name, options = {})
+        options[:type] ||= name
+        relationships.properties[name] = Properties::RelationshipProperty.new(options)
       end
     end
 
@@ -140,7 +100,6 @@ module JsonapiCli
 
     def save
       @id = cache.next_id(type)
-      relationships
       cache.store(self)
       self
     end
@@ -156,11 +115,11 @@ module JsonapiCli
     end
 
     def attributes
-      @attributes ||= ObjectAttribute.generate_object(self, self.class.attributes) 
+      @attributes ||= self.class.attributes.generate_value(self)
     end
 
     def relationships
-      @relationships ||= Relationship.generate_relationships(self, self.class.relationships)
+      @relationships ||= Hash.new {|hash, key| hash[key] = []}
     end
 
     def data
@@ -168,8 +127,16 @@ module JsonapiCli
       data["type"] = type
       data["id"]   = id if id
       data["attributes"] = attributes
-      data["relationships"] = relationships unless relationships.empty?
+
+      unless relationships.empty?
+        data["relationships"] = self.class.relationships.generate_value(self) 
+      end
+
       data
+    end
+
+    def inspect
+      "<#{type}:#{id}>"
     end
   end
 end

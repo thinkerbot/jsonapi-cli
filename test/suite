@@ -1,2 +1,3 @@
 #!/bin/bash
+./test/unit/suite &&
 ./test/integration/suite

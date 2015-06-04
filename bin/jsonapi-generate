@@ -62,6 +62,8 @@ options:
     exit
   end
 
+  $stderr.puts "seed: #{config.seed}"
+
   default_num  = options[:num].to_i
   resource_options = options[:resource_options]
 
@@ -75,6 +77,18 @@ options:
       resource = resource_class.create(resource_options, cache)
       resource.save
     end
+  end
+
+  picks = []
+
+  cache.each do |resource|
+    resource.class.relationships.properties.each_pair do |name, relationship|
+      picks.concat relationship.generate_picks(resource)
+    end
+  end
+
+  picks.each do |resource, relationship, index|
+    relationship.process_pick(resource, index)
   end
 
   cache.each do |resource|

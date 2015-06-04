@@ -8,25 +8,45 @@ class Persons < JsonapiCli::Resource
   attribute :gender
 
   attribute :phones, :array => true do
-    attribute :label, :subtype => :phone_type
+    attribute :label
     attribute :phone_number
   end
 
   attribute :address do
-    attribute :street, :subtype => :street_address
+    attribute :street, :generator => :generate_street_address
     attribute :city
     attribute :state
   end
 
-  generate_from Faker::Name, :first_name, :last_name
-  generate_from Faker::PhoneNumber, :phone_number
-  generate_from Faker::Address, :street_address, :city, :state
-
-  def generate_phone_type(attribute)
-    Faker::Base.translate("persons.phone_type").sample
+  def generate_first_name
+    Faker::Name.first_name
   end
 
-  def generate_gender(attribute)
-    Faker::Base.translate("persons.gender").sample
+  def generate_last_name
+    Faker::Name.last_name
+  end
+
+  def generate_gender
+    I18n.translate("persons.gender").sample
+  end
+
+  def generate_label
+    I18n.translate("persons.phone_type").sample
+  end
+
+  def generate_phone_number
+    Faker::PhoneNumber.phone_number
+  end
+
+  def generate_street_address
+    Faker::Address.street_address
+  end
+
+  def generate_city
+    Faker::Address.city
+  end
+
+  def generate_state
+    Faker::Address.state
   end
 end

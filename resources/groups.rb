@@ -5,7 +5,9 @@ class Groups < JsonapiCli::Resource
   register "http://localhost:3000/groups"
 
   attribute :name
-  relationship :members, :type => :persons, :range => 0..3
-
-  generate_from Faker::Name, :name
+  relationship :members, :type => :persons, :size => 0..3
+  
+  def generate_name
+    Faker::Name.name
+  end
 end
