@@ -9,8 +9,13 @@ assert_json () {
 ruby -rjson -rstrscan -e '
   scanner = StringScanner.new(ARGV[0])
   lineno = 0
-  while actual_line = STDIN.gets
-    expected_line = scanner.scan_until(/^}$/) || scanner.rest
+  while expected_line = scanner.scan_until(/^}$/) || scanner.rest
+    actual_line = STDIN.gets
+    if actual_line.nil?
+      STDERR.puts "not enough actual lines"
+      exit 1
+    end
+
     expected = JSON.load(expected_line) 
     actual   = JSON.load(actual_line)
     if expected == actual
@@ -20,6 +25,11 @@ ruby -rjson -rstrscan -e '
       exit 1
     end
     lineno += 1
+  end
+
+  unless STDIN.gets.nil?
+    STDERR.puts "not enough expected lines"
+    exit 1
   end
 ' "$@"
 }
@@ -54,51 +64,129 @@ jsonapi-generate persons | assert_json '
 }'
 }
 
+test_jsonapi_generate_notifies_if_not_enough_resources_are_available_to_associate () {
+jsonapi-generate -s 1 groups 2>&1 | grep -q 'not enough resources of type: :persons'
+}
+
 test_jsonapi_generate_prints_payload_for_resource_with_relationship () {
-jsonapi-generate -s 1 groups | assert_json '
+jsonapi-generate groups persons:3 | assert_json '
 {
   "data": {
-    "type": "persons",
+    "type": "groups",
     "id": 0,
     "attributes": {
-      "first_name": "Aric",
-      "last_name": "Smith",
-      "gender": "male",
-      "phones": [
-        {
-          "label": "home",
-          "phone_number": "(101) 769-2452"
-        },
-        {
-          "label": "cell",
-          "phone_number": "1-347-791-7069 x976"
-        }
-      ],
-      "address": {
-        "street": "2018 Sienna Spur",
-        "city": "Cortezview",
-        "state": "New Mexico"
+      "name": "Sandra Franecki"
+    },
+    "relationships": {
+      "members": {
+        "data": [
+          {
+            "type": "persons",
+            "id": 0
+          },
+          {
+            "type": "persons",
+            "id": 1
+          }
+        ]
       }
     }
   }
 }
 {
   "data": {
-    "type": "groups",
+    "type": "persons",
     "id": 0,
     "attributes": {
-      "name": "Jensen Steuber"
+      "first_name": "Duane",
+      "last_name": "Lehner",
+      "gender": "female",
+      "phones": [
+        {
+          "label": "home",
+          "phone_number": "868-816-7781"
+        },
+        {
+          "label": "home",
+          "phone_number": "530-350-2381 x333"
+        }
+      ],
+      "address": {
+        "street": "801 Hudson Parks",
+        "city": "West Nonaville",
+        "state": "Idaho"
+      }
     },
     "relationships": {
-      "members": {
-        "data": {
-          "linkage": [
-            {
-              "type": "persons",
-              "id": 0
-            }
-          ]
+      "group": {
+        "data": [
+          {
+            "type": "groups",
+            "id": 0
+          }
+        ]
+      }
+    }
+  }
+}
+{
+  "data": {
+    "type": "persons",
+    "id": 1,
+    "attributes": {
+      "first_name": "Weldon",
+      "last_name": "Howe",
+      "gender": "male",
+      "phones": [
+        {
+          "label": "cell",
+          "phone_number": "656-841-4981"
+        },
+        {
+          "label": "home",
+          "phone_number": "(467) 203-5944 x644"
+        },
+        {
+          "label": "cell",
+          "phone_number": "537-550-1593 x050"
         }
+      ],
+      "address": {
+        "street": "3420 Schumm Lights",
+        "city": "Enricohaven",
+        "state": "South Carolina"
+      }
+    },
+    "relationships": {
+      "group": {
+        "data": [
+          {
+            "type": "groups",
+            "id": 0
+          }
+        ]
+      }
+    }
+  }
+}
+{
+  "data": {
+    "type": "persons",
+    "id": 2,
+    "attributes": {
+      "first_name": "Woodrow",
+      "last_name": "Kassulke",
+      "gender": "female",
+      "phones": [
+        {
+          "label": "work",
+          "phone_number": "829.233.2341 x291"
+        }
+      ],
+      "address": {
+        "street": "78230 Gregory Parkway",
+        "city": "Audramouth",
+        "state": "Texas"
       }
     }
   }

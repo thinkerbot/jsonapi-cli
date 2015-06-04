@@ -45,6 +45,10 @@ module JsonapiCli
       end
 
       def pick_default_resources(pickable_resources)
+        if pickable_resources.empty?
+          raise "not enough resources of type: #{type.inspect}"
+        end
+
         pickable_resources.sample
       end
 
@@ -70,11 +74,7 @@ module JsonapiCli
           end
         end
 
-        if pickable_resources.empty?
-          raise "not enough resources of type: #{type.inspect}"
-        end
-
-        related_resource = picker && resource.respond_to?(picker) ? resource.send(picker, pickable_resources) : pick_default_resources(pickable_resources)
+        picker && resource.respond_to?(picker) ? resource.send(picker, pickable_resources) : pick_default_resources(pickable_resources)
       end
 
       def process_pick(resource, index)

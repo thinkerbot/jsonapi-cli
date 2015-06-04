@@ -67,6 +67,7 @@ module JsonapiCli
 
       def relationship(name, options = {})
         options[:type] ||= name
+        options[:picker] ||= "pick_#{name}".to_sym
         relationships.properties[name] = Properties::RelationshipProperty.new(options)
       end
     end
@@ -128,7 +129,7 @@ module JsonapiCli
       data["id"]   = id if id
       data["attributes"] = attributes
 
-      unless relationships.empty?
+      unless relationships.values.flatten.empty?
         data["relationships"] = self.class.relationships.generate_value(self) 
       end
 

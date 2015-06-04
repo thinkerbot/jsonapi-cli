@@ -18,6 +18,8 @@ class Persons < JsonapiCli::Resource
     attribute :state
   end
 
+  relationship :group, :type => :groups, :size => 0..1, :related_name => :members
+  
   def generate_first_name
     Faker::Name.first_name
   end
@@ -48,5 +50,9 @@ class Persons < JsonapiCli::Resource
 
   def generate_state
     Faker::Address.state
+  end
+
+  def pick_group(resources)
+    resources.sample
   end
 end
