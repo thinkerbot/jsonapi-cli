@@ -63,6 +63,7 @@ options:
   end
 
   $stderr.puts "seed: #{config.seed}"
+  Random.srand(config.seed)
 
   default_num  = options[:num].to_i
   resource_options = options[:resource_options]
@@ -79,6 +80,7 @@ options:
     end
   end
 
+  Random.srand(config.seed)
   picks = []
 
   cache.each do |resource|
@@ -91,11 +93,14 @@ options:
     relationship.process_pick(resource, index)
   end
 
+  Random.srand(config.seed)
   cache.each do |resource|
     case mode
     when :attributes
       puts resource.attributes.to_json
     when :payloads
+      puts resource.payload.to_json
+    when :requests
       puts resource.payload.to_json
     end
   end

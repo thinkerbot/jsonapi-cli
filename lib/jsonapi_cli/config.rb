@@ -76,8 +76,6 @@ module JsonapiCli
         require file
       end
 
-      Random.srand(seed)
-
       self
     end
   end
