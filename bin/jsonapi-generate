@@ -43,7 +43,7 @@ options:
       options[:resource_options][:list_mode] = value.to_sym
     end
 
-    opts.on("-n", "--num NUM", "number of each resource to generate") do |value|
+    opts.on("-n", "--num NUM", "number of sets to generate") do |value|
       options[:num] = value
     end
 
@@ -63,45 +63,50 @@ options:
   end
 
   $stderr.puts "seed: #{config.seed}"
-  Random.srand(config.seed)
 
-  default_num  = options[:num].to_i
+  num_sets = options[:num].to_i
   resource_options = options[:resource_options]
 
-  cache = config.cache
-  resource_specs.each do |spec|
-    type, num = spec.split(":", 2)
-    num = num ? num.to_i : default_num 
+  num_sets.times do |i|
+    config.reset if i > 0
 
-    resource_class = config.resource_class(type)
-    num.to_i.times do
-      resource = resource_class.create(resource_options, cache)
-      resource.save
+    cache = config.cache
+    Random.srand(config.seed)
+
+    resource_specs.each do |spec|
+      type, num = spec.split(":", 2)
+      num ||= 1
+
+      resource_class = config.resource_class(type)
+      num.to_i.times do
+        resource = resource_class.create(resource_options, cache)
+        resource.save
+      end
     end
-  end
 
-  Random.srand(config.seed)
-  picks = []
+    Random.srand(config.seed)
+    picks = []
 
-  cache.each do |resource|
-    resource.class.relationships.properties.each_pair do |name, relationship|
-      picks.concat relationship.generate_picks(resource)
+    cache.each do |resource|
+      resource.class.relationships.properties.each_pair do |name, relationship|
+        picks.concat relationship.generate_picks(resource)
+      end
     end
-  end
 
-  picks.each do |resource, relationship, index|
-    relationship.process_pick(resource, index)
-  end
+    picks.each do |resource, relationship, index|
+      relationship.process_pick(resource, index)
+    end
 
-  Random.srand(config.seed)
-  cache.each do |resource|
-    case mode
-    when :attributes
-      puts resource.attributes.to_json
-    when :payloads
-      puts resource.payload.to_json
-    when :requests
-      puts resource.payload.to_json
+    Random.srand(config.seed)
+    cache.each do |resource|
+      case mode
+      when :attributes
+        puts resource.attributes.to_json
+      when :payloads
+        puts resource.payload.to_json
+      when :requests
+        puts resource.payload.to_json
+      end
     end
   end
 

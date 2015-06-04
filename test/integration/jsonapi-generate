@@ -256,11 +256,14 @@ jsonapi-generate -l | grep -q "^persons$"
 # -n
 #
 
-test_jsonapi_generate_n_specifies_how_many_payloads_to_emit () {
-jsonapi-generate -n 3 persons | jq -r .data.attributes.first_name | assert_output "\
+test_jsonapi_generate_n_specifies_how_many_sets_to_emit () {
+jsonapi-generate -n 3 persons:2 | jq -r .data.attributes.first_name | assert_output "\
 Sylvan
 Wilson
-Gilbert
+Aimee
+Brenna
+Kenya
+Jacklyn
 "
 }
 

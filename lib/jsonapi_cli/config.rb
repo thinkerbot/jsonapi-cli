@@ -39,6 +39,11 @@ module JsonapiCli
       @cache          = Cache.new
     end
 
+    def reset
+      @seed = rand(10000000000)
+      @cache = Cache.new
+    end
+
     def resource_classes
       JsonapiCli::Resource::REGISTRY.values
     end
