@@ -74,7 +74,11 @@ module JsonapiCli
           end
         end
 
-        picker && resource.respond_to?(picker) ? resource.send(picker, pickable_resources) : pick_default_resources(pickable_resources)
+        if pickable_resources.empty? && resource.relationships[self].compact.length >= size.min
+          nil
+        else
+          picker && resource.respond_to?(picker) ? resource.send(picker, pickable_resources) : pick_default_resources(pickable_resources)
+        end
       end
 
       def process_pick(resource, index)

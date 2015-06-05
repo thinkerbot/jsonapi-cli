@@ -41,7 +41,8 @@ module JsonapiCli
 
     def reset
       @seed = rand(10000000000)
-      @cache = Cache.new
+      @cache.resources.clear
+      self
     end
 
     def resource_classes

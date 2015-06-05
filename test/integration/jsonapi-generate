@@ -69,24 +69,24 @@ jsonapi-generate -s 1 groups 2>&1 | grep -q 'not enough resources of type: :pers
 }
 
 test_jsonapi_generate_prints_payload_for_resource_with_relationship () {
-jsonapi-generate groups persons:3 | assert_json '
+jsonapi-generate -s 242065524774342883188371540536857245474 groups persons:3 | assert_json '
 {
   "data": {
     "type": "groups",
     "id": 0,
     "attributes": {
-      "name": "Sandra Franecki"
+      "name": "Mrs. Izabella Bechtelar"
     },
     "relationships": {
       "members": {
         "data": [
           {
             "type": "persons",
-            "id": 0
+            "id": 1
           },
           {
             "type": "persons",
-            "id": 1
+            "id": 2
           }
         ]
       }
@@ -98,33 +98,19 @@ jsonapi-generate groups persons:3 | assert_json '
     "type": "persons",
     "id": 0,
     "attributes": {
-      "first_name": "Duane",
-      "last_name": "Lehner",
+      "first_name": "Jaylen",
+      "last_name": "Pollich",
       "gender": "female",
       "phones": [
         {
-          "label": "home",
-          "phone_number": "868-816-7781"
-        },
-        {
-          "label": "home",
-          "phone_number": "530-350-2381 x333"
+          "label": "work",
+          "phone_number": "983.274.2057 x2086"
         }
       ],
       "address": {
-        "street": "801 Hudson Parks",
-        "city": "West Nonaville",
-        "state": "Idaho"
-      }
-    },
-    "relationships": {
-      "group": {
-        "data": [
-          {
-            "type": "groups",
-            "id": 0
-          }
-        ]
+        "street": "2388 Stamm Divide",
+        "city": "Justinamouth",
+        "state": "Arizona"
       }
     }
   }
@@ -134,27 +120,23 @@ jsonapi-generate groups persons:3 | assert_json '
     "type": "persons",
     "id": 1,
     "attributes": {
-      "first_name": "Weldon",
-      "last_name": "Howe",
-      "gender": "male",
+      "first_name": "Wilmer",
+      "last_name": "Gulgowski",
+      "gender": "female",
       "phones": [
         {
-          "label": "cell",
-          "phone_number": "656-841-4981"
-        },
-        {
-          "label": "home",
-          "phone_number": "(467) 203-5944 x644"
+          "label": "work",
+          "phone_number": "1-814-580-8276"
         },
         {
           "label": "cell",
-          "phone_number": "537-550-1593 x050"
+          "phone_number": "1-604-021-2005 x52838"
         }
       ],
       "address": {
-        "street": "3420 Schumm Lights",
-        "city": "Enricohaven",
-        "state": "South Carolina"
+        "street": "3049 Skiles Spring",
+        "city": "Port Izabella",
+        "state": "Massachusetts"
       }
     },
     "relationships": {
@@ -174,19 +156,33 @@ jsonapi-generate groups persons:3 | assert_json '
     "type": "persons",
     "id": 2,
     "attributes": {
-      "first_name": "Woodrow",
-      "last_name": "Kassulke",
-      "gender": "female",
+      "first_name": "Tierra",
+      "last_name": "Goodwin",
+      "gender": "male",
       "phones": [
         {
-          "label": "work",
-          "phone_number": "829.233.2341 x291"
+          "label": "home",
+          "phone_number": "1-765-692-4633 x691"
+        },
+        {
+          "label": "home",
+          "phone_number": "1-141-115-8431 x9601"
         }
       ],
       "address": {
-        "street": "78230 Gregory Parkway",
-        "city": "Audramouth",
-        "state": "Texas"
+        "street": "883 Cristopher Views",
+        "city": "North Cory",
+        "state": "New York"
+      }
+    },
+    "relationships": {
+      "group": {
+        "data": [
+          {
+            "type": "groups",
+            "id": 0
+          }
+        ]
       }
     }
   }
