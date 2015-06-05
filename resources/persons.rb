@@ -7,7 +7,7 @@ class Persons < JsonapiCli::Resource
   attribute :last_name
   attribute :gender
 
-  attribute :phones, :array => true do
+  attribute :phones, :size => 1..3 do
     attribute :label
     attribute :phone_number
   end
@@ -38,6 +38,10 @@ class Persons < JsonapiCli::Resource
 
   def generate_phone_number
     Faker::PhoneNumber.phone_number
+  end
+
+  def transform_phone_number(value)
+    value.gsub(/\w/, "x")
   end
 
   def generate_street_address

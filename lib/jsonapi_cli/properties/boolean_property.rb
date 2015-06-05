@@ -5,7 +5,7 @@ module JsonapiCli
     class BooleanProperty < Property
       OPTIONS = [true, false]
   
-      def generate_default_value(*generator_args)
+      def generate_default_value(resource)
         OPTIONS.sample
       end
     end

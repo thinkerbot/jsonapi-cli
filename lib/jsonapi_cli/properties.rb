@@ -26,14 +26,7 @@ module JsonapiCli
     def create(options = {})
       type = options.delete(:type)
       property_class = lookup(type)
-      property = property_class.new(options)
-
-      is_array = options.delete(:array)
-      if is_array == true
-        property = ArrayProperty.new(:properties => [property])
-      end
-
-      property
+      property_class.new(options)
     end
   end
 end

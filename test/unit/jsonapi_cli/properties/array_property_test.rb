@@ -22,7 +22,7 @@ class JsonapiCli::Properties::ArrayPropertyTest < Test::Unit::TestCase
       @value = options.fetch(:value)
     end
 
-    def generate_default_value
+    def generate_default_value(resource)
       @value
     end
   end
@@ -32,7 +32,7 @@ class JsonapiCli::Properties::ArrayPropertyTest < Test::Unit::TestCase
   #
 
   def test_type_is_array
-    property = ArrayProperty.new
+    property = ArrayProperty.new :property => ExampleProperty.new(:value => "A")
     assert_equal(:array, property.type)
   end
 
@@ -41,29 +41,12 @@ class JsonapiCli::Properties::ArrayPropertyTest < Test::Unit::TestCase
   #
 
   def test_generate_value_returns_empty_array
-    property = ArrayProperty.new
+    property = ArrayProperty.new :property => ExampleProperty.new(:value => "A")
     assert_equal([], property.generate_value(resource))
   end
 
   def test_generate_value_populates_hash_with_size_property_values
-    properties = [
-      ExampleProperty.new(:value => "A"),
-      ExampleProperty.new(:value => "B"),
-    ]
-    property = ArrayProperty.new(:size => 3, :properties => properties)
-
-    assert_equal(["A", "B", "A"], property.generate_value(resource))
-  end
-
-  def test_generate_value_picks_randomly_within_range_sizes
-    properties = [
-      ExampleProperty.new(:value => "A"),
-      ExampleProperty.new(:value => "B"),
-    ]
-    property = ArrayProperty.new(:size => 0..10, :properties => properties)
-
-    assert_equal(["A", "B", "A", "B", "A"], property.generate_value(resource))
-    assert_equal([], property.generate_value(resource))
-    assert_equal(["B", "A", "B"], property.generate_value(resource))
+    property = ArrayProperty.new(:size => 3, :property => ExampleProperty.new(:value => "A"))
+    assert_equal(["A", "A", "A"], property.generate_value(resource))
   end
 end

@@ -17,18 +17,20 @@ module JsonapiCli
         self
       end
 
-      def generate_default_value(*generator_args)
-        {}
-      end
-
-      def generate_value(resource)
-        return generator.call(resource) if generator
-
-        object = generate_default_value
+      def generate_default_value(resource)
+        object = {}
         properties.each_pair do |name, property|
           object[name] = property.generate_value(resource)
         end
-        object 
+        object
+      end
+
+      def transform_default_value(resource, value)
+        object = {}
+        value.each_pair do |name, val|
+          object[name] = properties[name].transform_value(resource, val)
+        end
+        object
       end
     end
   end

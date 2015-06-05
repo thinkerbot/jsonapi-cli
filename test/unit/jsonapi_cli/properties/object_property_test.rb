@@ -14,7 +14,7 @@ class JsonapiCli::Properties::ObjectPropertyTest < Test::Unit::TestCase
       @value = options.fetch(:value)
     end
     
-    def generate_default_value
+    def generate_default_value(resource)
       @value
     end
   end

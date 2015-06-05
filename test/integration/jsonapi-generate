@@ -191,11 +191,11 @@ jsonapi-generate -s 242065524774342883188371540536857245474 groups persons:3 | a
 }
 
 #
-# --attributes-only
+# --attributes
 #
 
 test_jsonapi_generate_attributes_only_prints_attributes_for_resource () {
-jsonapi-generate --attributes-only persons | assert_json '
+jsonapi-generate --attributes persons | assert_json '
 {
   "first_name": "Sylvan",
   "last_name": "Bradtke",
@@ -261,6 +261,67 @@ Brenna
 Kenya
 Jacklyn
 "
+}
+
+#
+# -P
+#
+
+test_jsonapi_generate_prints_response_payload_for_resource () {
+jsonapi-generate persons -P | assert_json '
+{
+  "data": {
+    "type": "persons",
+    "id": 0,
+    "attributes": {
+      "first_name": "Sylvan",
+      "last_name": "Bradtke",
+      "gender": "female",
+      "phones": [
+        {
+          "label": "home",
+          "phone_number": "x-xxx-xxx-xxxx xxxxxx"
+        }
+      ],
+      "address": {
+        "street": "40350 Alexanne Vista",
+        "city": "South Dimitri",
+        "state": "Maryland"
+      }
+    }
+  }
+}
+'
+}
+
+#
+# -Q
+#
+
+test_jsonapi_generate_prints_request_payload_for_resource () {
+jsonapi-generate persons -Q | assert_json '
+{
+  "data": {
+    "type": "persons",
+    "attributes": {
+      "first_name": "Sylvan",
+      "last_name": "Bradtke",
+      "gender": "female",
+      "phones": [
+        {
+          "label": "home",
+          "phone_number": "1-576-881-6778 x15989"
+        }
+      ],
+      "address": {
+        "street": "40350 Alexanne Vista",
+        "city": "South Dimitri",
+        "state": "Maryland"
+      }
+    }
+  }
+}
+'
 }
 
 . ts

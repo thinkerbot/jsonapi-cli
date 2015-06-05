@@ -10,7 +10,7 @@ begin
   require 'shellwords'
 
   options = JsonapiCli.options(
-    :mode => :payloads,
+    :mode => :objects,
     :num  => 1,
     :resource_options => {},
   )
@@ -18,14 +18,14 @@ begin
     opts.banner = %{
 usage: jsonapi-generate [options] RESOURCE[:COUNT] ...
 
-  Generate payloads from resource descriptions.
+  Generate requests from resource descriptions.
 
 options:
 
 }.lstrip
 
-    opts.on("--[no-]attributes-only", "generate attributes onlu") do |value|
-      options[:mode] = value ? :attributes : :payloads
+    opts.on("-A", "--attributes", "generate attributes") do
+      options[:mode] = :attributes
     end
 
     opts.on("-h", "--help", "print this help") do
@@ -47,9 +47,22 @@ options:
       options[:num] = value
     end
 
+    opts.on("-O", "--objects", "generate resource objects (default)") do
+      options[:mode] = :objects
+    end
+
+    opts.on("-P", "--responses", "generate responses") do
+      options[:mode] = :responses
+    end
+
+    opts.on("-Q", "--requests", "generate requests") do
+      options[:mode] = :requests
+    end
+
     opts.on("-s", "--seed SEED", "set seed value") do |value|
       options[:seed] = value
     end
+
   end.parse!
 
   config = JsonapiCli.setup(options)
@@ -84,28 +97,32 @@ options:
       end
     end
 
-    Random.srand(config.seed)
-    picks = []
+    unless mode == :attributes
+      Random.srand(config.seed)
+      picks = []
 
-    cache.each do |resource|
-      resource.class.relationships.properties.each_pair do |name, relationship|
-        picks.concat relationship.generate_picks(resource)
+      cache.each do |resource|
+        resource.class.relationships.properties.each_pair do |name, relationship|
+          picks.concat relationship.generate_picks(resource)
+        end
       end
-    end
 
-    picks.each do |resource, relationship, index|
-      relationship.process_pick(resource, index)
+      picks.each do |resource, relationship, index|
+        relationship.process_pick(resource, index)
+      end
     end
 
     Random.srand(config.seed)
     cache.each do |resource|
       case mode
+      when :objects
+        puts resource.object.to_json
       when :attributes
         puts resource.attributes.to_json
-      when :payloads
-        puts resource.payload.to_json
+      when :responses
+        puts resource.response.to_json
       when :requests
-        puts resource.payload.to_json
+        puts resource.request.to_json
       end
     end
   end

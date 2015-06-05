@@ -21,10 +21,4 @@ class JsonapiCli::PropertiesTest < Test::Unit::TestCase
     property = Properties.create(:type => :integer)
     assert_equal IntegerProperty, property.class
   end
-
-  def test_create_returns_array_property_wrapping_property_if_array_is_true
-    property = Properties.create(:array => true, :type => :string)
-    assert_equal ArrayProperty, property.class
-    assert_equal [StringProperty], property.properties.map(&:class)
-  end
 end

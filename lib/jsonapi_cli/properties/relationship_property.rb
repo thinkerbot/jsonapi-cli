@@ -97,11 +97,12 @@ module JsonapiCli
         size == 1 ? false : true
       end
 
-      def generate_default_value(related_resources)
+      def generate_default_value(resource)
+        related_resources = resource.relationships[self]
         data = []
 
         related_resources.each do |related_resource|
-          data << {"type" => related_resource.type, "id" => related_resource.id}
+          data << related_resource.identifier
         end
 
         if ! arrayify?
@@ -111,10 +112,6 @@ module JsonapiCli
         {
           "data" => data
         }
-      end
-
-      def generator_args(resource)
-        [resource.relationships[self]]
       end
     end
   end

@@ -5,7 +5,7 @@ module JsonapiCli
     class NumberProperty < Property
       DEFAULT_RANGE = -1000.0..1000.0
 
-      def generate_default_value(*generator_args)
+      def generate_default_value(resource)
         rand(DEFAULT_RANGE)
       end
     end

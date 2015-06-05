@@ -52,12 +52,18 @@ module JsonapiCli
 
       def attribute(name, options = {}, &block)
         options[:generator] ||= "generate_#{name}".to_sym
+        options[:transformer] ||= "transform_#{name}".to_sym
 
         if block_given?
+          size = options.delete(:size)
+
           options[:type] = :object
           property = Properties.create(options)
+          capture_to(property, &block)
 
-          capture_to(property.kind_of?(Properties::ArrayProperty) ? property.properties.first : property, &block)
+          if size
+            property = Properties::ArrayProperty.new(:size => size, :property => property)
+          end
         else
           property = Properties.create(options)
         end
@@ -95,7 +101,45 @@ module JsonapiCli
       }
     end
 
-    def payload
+    def identifier
+      {"type" => type, "id" => id}
+    end
+
+    def object(include_relationships = true)
+      data = {}
+      data["type"] = type
+      data["id"] = id if id
+      data["attributes"] = attributes
+
+      if include_relationships && !relationships.values.flatten.empty?
+        data["relationships"] = self.class.relationships.generate_value(self) 
+      end
+
+      {"data" => data}
+    end
+
+    def request(include_relationships = true)
+      data = {}
+      data["type"] = type
+      data["attributes"] = attributes
+
+      if include_relationships && !relationships.values.flatten.empty?
+        data["relationships"] = self.class.relationships.generate_value(self) 
+      end
+
+      {"data" => data}
+    end
+
+    def response(include_relationships = true)
+      data = {}
+      data["type"] = type
+      data["id"]   = id
+      data["attributes"] = self.class.attributes.transform_value(self, attributes)
+
+      if include_relationships && !relationships.values.flatten.empty?
+        data["relationships"] = self.class.relationships.generate_value(self) 
+      end
+
       {"data" => data}
     end
 
@@ -121,19 +165,6 @@ module JsonapiCli
 
     def relationships
       @relationships ||= Hash.new {|hash, key| hash[key] = []}
-    end
-
-    def data
-      data = {}
-      data["type"] = type
-      data["id"]   = id if id
-      data["attributes"] = attributes
-
-      unless relationships.values.flatten.empty?
-        data["relationships"] = self.class.relationships.generate_value(self) 
-      end
-
-      data
     end
 
     def inspect

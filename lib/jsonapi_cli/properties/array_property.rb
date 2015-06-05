@@ -3,14 +3,14 @@ require 'jsonapi_cli/property'
 module JsonapiCli
   module Properties
     class ArrayProperty < Property
-      DEFAULT_SIZE = 1..3
+      DEFAULT_SIZE = 0
 
       attr_reader :size
-      attr_reader :properties
+      attr_reader :property
 
       def initialize(options = {})
         @size = options.fetch(:size, DEFAULT_SIZE)
-        @properties = options.fetch(:properties, [])
+        @property = options.fetch(:property)
       end
 
       def sizes_enum
@@ -34,24 +34,16 @@ module JsonapiCli
         end
       end
 
-      def properties_enum
-        @properties_enum ||= properties.cycle
-      end
-
-      def generate_default_value(*generator_args)
-        []
-      end
-
-      def generate_value(resource)
-        return generator.call(resource) if generator
-
-        array = generate_default_value
-        unless properties.empty?
-          next_size(resource).times do
-            array << properties_enum.next.generate_value(resource)
-          end
+      def generate_default_value(resource)
+        next_size(resource).times.map do 
+          property.generate_value(resource)
         end
-        array
+      end
+
+      def transform_value(resource, value)
+        value.map do |val|
+          property.transform_value(resource, val)
+        end
       end
     end
   end

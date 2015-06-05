@@ -9,26 +9,31 @@ module JsonapiCli
     end
 
     attr_reader :generator
+    attr_reader :transformer
 
     def initialize(options = {})
       @generator = options.fetch(:generator, nil)
+      @transformer = options.fetch(:transformer, nil)
     end
 
     def type
       self.class.type
     end
 
-    def generate_default_value(*generator_args)
+    def generate_default_value(resource)
       raise NotImplementedError
     end
 
-    def generator_args(resource)
-      []
+    def generate_value(resource)
+      generator && resource.respond_to?(generator) ? resource.send(generator) : generate_default_value(resource)
     end
 
-    def generate_value(resource)
-      args = generator_args(resource)
-      generator && resource.respond_to?(generator) ? resource.send(generator, *args) : generate_default_value(*args)
+    def transform_default_value(resource, value)
+      value
+    end
+
+    def transform_value(resource, value)
+      transformer && resource.respond_to?(transformer) ? resource.send(transformer, value) : transform_default_value(resource, value)
     end
   end
 end
