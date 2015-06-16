@@ -6,6 +6,7 @@ module JsonapiCli
       attr_reader :properties
 
       def initialize(options = {})
+        super
         @properties = options.fetch(:properties, {})
       end
 
