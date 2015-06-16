@@ -7,7 +7,7 @@ class Groups < JsonapiCli::Resource
   attribute :name
   relationship :members, :type => :persons, :size => 1..3, :related_name => :group
   
-  def generate_name
+  def generate_name(property)
     Faker::Name.name
   end
 end

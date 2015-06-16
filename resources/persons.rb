@@ -20,43 +20,43 @@ class Persons < JsonapiCli::Resource
 
   relationship :group, :type => :groups, :size => 0..1, :related_name => :members
   
-  def generate_first_name
+  def generate_first_name(property)
     Faker::Name.first_name
   end
 
-  def generate_last_name
+  def generate_last_name(property)
     Faker::Name.last_name
   end
 
-  def generate_gender
+  def generate_gender(property)
     I18n.translate("persons.gender").sample
   end
 
-  def generate_label
+  def generate_label(property)
     I18n.translate("persons.phone_type").sample
   end
 
-  def generate_phone_number
+  def generate_phone_number(property)
     Faker::PhoneNumber.phone_number
   end
 
-  def transform_phone_number(value)
+  def transform_phone_number(property, value)
     value.gsub(/\w/, "x")
   end
 
-  def generate_street_address
+  def generate_street_address(property)
     Faker::Address.street_address
   end
 
-  def generate_city
+  def generate_city(property)
     Faker::Address.city
   end
 
-  def generate_state
+  def generate_state(property)
     Faker::Address.state
   end
 
-  def pick_group(resources)
+  def pick_group(property, resources)
     resources.sample
   end
 end
