@@ -20,11 +20,11 @@ module JsonapiCli
       end
 
       def attributes
-        @attributes ||= Properties::ObjectProperty.new
+        @attributes ||= Properties::ObjectProperty.new("attributes")
       end
 
       def relationships
-        @relationships ||= Properties::ObjectProperty.new
+        @relationships ||= Properties::ObjectProperty.new("relationships")
       end
 
       def create(options = {}, cache = Cache.new)
@@ -58,14 +58,14 @@ module JsonapiCli
           size = options.delete(:size)
 
           options[:type] = :object
-          property = Properties.create(options)
+          property = Properties.create(name, options)
           capture_to(property, &block)
 
           if size
-            property = Properties::ArrayProperty.new(:size => size, :property => property)
+            property = Properties::ArrayProperty.new("#{name}[]", :size => size, :property => property)
           end
         else
-          property = Properties.create(options)
+          property = Properties.create(name, options)
         end
 
         attributes.properties[name] = property
@@ -74,7 +74,7 @@ module JsonapiCli
       def relationship(name, options = {})
         options[:type] ||= name
         options[:picker] ||= "pick_#{name}".to_sym
-        relationships.properties[name] = Properties::RelationshipProperty.new(options)
+        relationships.properties[name] = Properties::RelationshipProperty.new(name, options)
       end
     end
 

@@ -18,7 +18,7 @@ class JsonapiCli::Properties::IntegerPropertyTest < Test::Unit::TestCase
   #
 
   def test_type_is_integer
-    property = IntegerProperty.new
+    property = IntegerProperty.new "name"
     assert_equal(:integer, property.type)
   end
 
@@ -27,7 +27,7 @@ class JsonapiCli::Properties::IntegerPropertyTest < Test::Unit::TestCase
   #
 
   def test_generate_value_returns_a_integer
-    property = IntegerProperty.new
+    property = IntegerProperty.new "name"
     assert_equal(-316, property.generate_value(resource))
   end
 end

@@ -10,7 +10,7 @@ module JsonapiCli
       attr_reader :picker
       attr_reader :related_name
 
-      def initialize(options = {})
+      def initialize(name, options = {})
         super
         @type = options.fetch(:type)
         @related_name = options.fetch(:related_name, nil)

@@ -23,10 +23,10 @@ module JsonapiCli
       end
     end
 
-    def create(options = {})
+    def create(name, options = {})
       type = options.delete(:type)
       property_class = lookup(type)
-      property_class.new(options)
+      property_class.new(name, options)
     end
   end
 end

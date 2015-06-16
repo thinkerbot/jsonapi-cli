@@ -8,7 +8,7 @@ module JsonapiCli
       attr_reader :size
       attr_reader :property
 
-      def initialize(options = {})
+      def initialize(name, options = {})
         super
         @size = options.fetch(:size, DEFAULT_SIZE)
         @property = options.fetch(:property)

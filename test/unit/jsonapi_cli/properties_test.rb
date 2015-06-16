@@ -15,10 +15,10 @@ class JsonapiCli::PropertiesTest < Test::Unit::TestCase
   #
 
   def test_create_returns_property_for_simple_types
-    property = Properties.create(:type => :string)
+    property = Properties.create("name", :type => :string)
     assert_equal StringProperty, property.class
 
-    property = Properties.create(:type => :integer)
+    property = Properties.create("name", :type => :integer)
     assert_equal IntegerProperty, property.class
   end
 end

@@ -14,7 +14,7 @@ class JsonapiCli::Properties::NullPropertyTest < Test::Unit::TestCase
   #
 
   def test_type_is_null
-    property = NullProperty.new
+    property = NullProperty.new "name"
     assert_equal(:null, property.type)
   end
 
@@ -23,7 +23,7 @@ class JsonapiCli::Properties::NullPropertyTest < Test::Unit::TestCase
   #
 
   def test_generate_value_returns_a_null
-    property = NullProperty.new
+    property = NullProperty.new "name"
     assert_equal(nil, property.generate_value(resource))
   end
 end

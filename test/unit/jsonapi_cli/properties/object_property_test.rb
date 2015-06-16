@@ -10,12 +10,8 @@ class JsonapiCli::Properties::ObjectPropertyTest < Test::Unit::TestCase
   end
 
   class ExampleProperty < JsonapiCli::Property
-    def initialize(options = {})
-      @value = options.fetch(:value)
-    end
-    
     def generate_default_value(resource)
-      @value
+      name
     end
   end
 
@@ -24,7 +20,7 @@ class JsonapiCli::Properties::ObjectPropertyTest < Test::Unit::TestCase
   #
 
   def test_type_is_object
-    property = ObjectProperty.new
+    property = ObjectProperty.new "name"
     assert_equal(:object, property.type)
   end
 
@@ -33,16 +29,16 @@ class JsonapiCli::Properties::ObjectPropertyTest < Test::Unit::TestCase
   #
 
   def test_generate_value_returns_empty_hash
-    property = ObjectProperty.new
+    property = ObjectProperty.new "name"
     assert_equal({}, property.generate_value(resource))
   end
 
   def test_generate_value_populates_hash_with_property_values
     properties = {
-      "a" => ExampleProperty.new(:value => "A"),
-      "b" => ExampleProperty.new(:value => "B"),
+      "a" => ExampleProperty.new("A"),
+      "b" => ExampleProperty.new("B"),
     }
-    property = ObjectProperty.new(:properties => properties)
+    property = ObjectProperty.new("name", :properties => properties)
 
     assert_equal({
       "a" => "A",

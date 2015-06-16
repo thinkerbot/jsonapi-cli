@@ -18,7 +18,7 @@ class JsonapiCli::Properties::NumberPropertyTest < Test::Unit::TestCase
   #
 
   def test_type_is_number
-    property = NumberProperty.new
+    property = NumberProperty.new "name"
     assert_equal(:number, property.type)
   end
 
@@ -27,7 +27,7 @@ class JsonapiCli::Properties::NumberPropertyTest < Test::Unit::TestCase
   #
 
   def test_generate_value_returns_a_number
-    property = NumberProperty.new
+    property = NumberProperty.new "name"
     assert_equal(97.62700488457676, property.generate_value(resource))
   end
 end

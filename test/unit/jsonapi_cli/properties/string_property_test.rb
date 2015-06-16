@@ -18,7 +18,7 @@ class JsonapiCli::Properties::StringPropertyTest < Test::Unit::TestCase
   #
 
   def test_type_is_string
-    property = StringProperty.new
+    property = StringProperty.new "name"
     assert_equal(:string, property.type)
   end
 
@@ -27,7 +27,7 @@ class JsonapiCli::Properties::StringPropertyTest < Test::Unit::TestCase
   #
 
   def test_generate_value_returns_a_string
-    property = StringProperty.new
+    property = StringProperty.new "name"
     assert_equal("eligendi", property.generate_value(resource))
   end
 end

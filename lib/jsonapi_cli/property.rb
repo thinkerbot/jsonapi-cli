@@ -8,10 +8,12 @@ module JsonapiCli
       end
     end
 
+    attr_reader :name
     attr_reader :generator
     attr_reader :transformer
 
-    def initialize(options = {})
+    def initialize(name, options = {})
+      @name = name
       @generator = options.fetch(:generator, nil)
       @transformer = options.fetch(:transformer, nil)
     end

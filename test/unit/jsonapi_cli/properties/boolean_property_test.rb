@@ -18,7 +18,7 @@ class JsonapiCli::Properties::BooleanPropertyTest < Test::Unit::TestCase
   #
 
   def test_type_is_boolean
-    property = BooleanProperty.new
+    property = BooleanProperty.new "name"
     assert_equal(:boolean, property.type)
   end
 
@@ -27,7 +27,7 @@ class JsonapiCli::Properties::BooleanPropertyTest < Test::Unit::TestCase
   #
 
   def test_generate_value_returns_a_boolean
-    property = BooleanProperty.new
+    property = BooleanProperty.new "name"
     assert_equal(true, property.generate_value(resource))
   end
 end
