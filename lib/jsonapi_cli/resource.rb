@@ -108,7 +108,7 @@ module JsonapiCli
     def object(include_relationships = true)
       data = {}
       data["type"] = type
-      data["id"] = id if id
+      data["id"] = id
       data["attributes"] = attributes
 
       if include_relationships && !relationships.values.flatten.empty?
