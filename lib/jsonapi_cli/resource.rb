@@ -9,9 +9,9 @@ module JsonapiCli
       attr_reader :url
       attr_reader :type
 
-      def register(url, type = nil)
+      def register(url, type)
         @url = url
-        @type = type || self.to_s.split('::').last.downcase
+        @type = type
         Resource::REGISTRY[@type] = self
       end
 
