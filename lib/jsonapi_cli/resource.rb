@@ -51,8 +51,9 @@ module JsonapiCli
       end
 
       def attribute(name, options = {}, &block)
-        options[:generator] ||= "generate_#{name}".to_sym
-        options[:transformer] ||= "transform_#{name}".to_sym
+        subtype = options[:subtype] || name
+        options[:generator] ||= "generate_#{subtype}".to_sym
+        options[:transformer] ||= "transform_#{subtype}".to_sym
 
         if block_given?
           size = options.delete(:size)
@@ -73,7 +74,8 @@ module JsonapiCli
 
       def relationship(name, options = {})
         options[:type] ||= name
-        options[:picker] ||= "pick_#{name}".to_sym
+        subtype = options[:subtype] || name
+        options[:picker] ||= "pick_#{subtype}".to_sym
         relationships.properties[name] = Properties::RelationshipProperty.new(name, options)
       end
     end
